@@ -4,7 +4,7 @@
 
 # Config
 
-EC2_UTILS_PATH = "/home/ubuntu/ec2/bin/"
+EC2_UTILS_PATH = "/home/ubuntu/.ec2/bin/"
 
 ami_id = "ami-e720ad8e"
 
