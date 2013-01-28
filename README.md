@@ -10,3 +10,4 @@
 * iptables puppet module
 * software modules
 * custom facts
+* script for getting info for ec2 and installing/configuring puppet
