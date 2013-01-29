@@ -1,0 +1,24 @@
+Nodes:
+  Main_Box:
+    Users:
+      - Team_1
+      - Instructor
+    Software:
+      <<: *firewall_client_1
+  
+  Student:
+  Client:
+
+Groups:
+  Team_1:
+    { name: Stefan Boesen, pass: password }
+  Instructor:
+    { name: Richard Weiss, pass: pass2 }
+
+Software:
+  Firewall_Client_1: &firewall_client_1
+    - iptables_base
+    - basic_attacking_tools
+  Firewall_Client_2: &firewall_client_2
+    - iptables_base
+    - basic_http_server
