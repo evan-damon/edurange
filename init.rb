@@ -34,10 +34,6 @@ def get_our_ssh_key
   contents = file.read
 end
 
-def puppetmaster_setup
-
-end
-
 def gen_client_ssl_cert
   # We need to:
   # Generate unique name (UUIDgen)
