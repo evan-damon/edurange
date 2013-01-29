@@ -1,12 +1,12 @@
 Nodes:
   Main_Box:
     Software:
-    <<: *firewall_client_1
+      - Firewall_Client_1
 
 Software:
-  Firewall_Client_1: &firewall_client_1
+  Firewall_Client_1: 
     - iptables_base
     - basic_attacking_tools
-  Firewall_Client_2: &firewall_client_2
+  Firewall_Client_2:
     - iptables_base
     - basic_http_server
