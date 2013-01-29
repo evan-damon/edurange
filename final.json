@@ -1,0 +1,33 @@
+{
+    "Nodes": {
+        "Main_Box": {
+            "Users": [
+                "Team_1",
+                "Instructor"
+            ],
+            "Software": [
+                "Firewall Client 1"
+            ]
+        },
+        "Student": {},
+        "Client": {}
+    },
+    "Groups": {
+        "Team_1": {
+            "Stefan Boesen": "password"
+        },
+        "Instructor": {
+            "Richard Weiss": "pass2"
+        }
+    },
+    "Software": {
+        "Firewall Client 1": [
+            "iptables base config",
+            "basic attacking tools"
+        ],
+        "Firewall Target 1": [
+            "iptables base config",
+            "basic http server"
+        ]
+    }
+}
