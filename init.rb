@@ -10,7 +10,7 @@ ami_id = "ami-e720ad8e"
 
 vm_size = "t1.micro"
 
-key_name = "petra" # ec2 key name, not file name
+key_name = "newkey" # ec2 key name, not file name
 
 puppetmaster_ip = `curl http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null`
 
@@ -44,7 +44,7 @@ def gen_client_ssl_cert
   uuid = `uuidgen`.chomp
   puts uuid
   # Create cert for name on puppetmaster
-  `sudo puppetca --generate #{uuid}`
+  `sudo puppet cert --generate #{uuid}`
   ssl_cert = `sudo cat /var/lib/puppet/ssl/certs/#{uuid}.pem`.chomp
   ca_cert = `sudo cat /var/lib/puppet/ssl/certs/ca.pem`.chomp
   private_key = `sudo cat /var/lib/puppet/ssl/private_keys/#{uuid}.pem`.chomp
@@ -65,6 +65,7 @@ templatedir=$confdir/templates
 prerun_command=/etc/puppet/etckeeper-commit-pre
 postrun_command=/etc/puppet/etckeeper-commit-post
 runinterval=60 # run every minute for debug TODO REMOVE
+pluginsync=true
 
 [master]
 # These are needed when the puppetmaster is run by passenger
@@ -77,12 +78,19 @@ certname=#{uuid}
 conf
 end
 
+def facter_facts
+  facter_conf = <<conf
+aaaaaafact=value
+conf
+end
+
+
 #def init_crontab
   # set up crontab to refresh list of signable hosts
   # * * * * * ec2-describe-instances | grep ^INSTANCE | grep -v terminated | awk '{print $4}' > /etc/puppet/autosign.conf 
 #end
 
-def write_shell_config_file(ssh_key, puppetmaster_ip, certs, puppet_conf)
+def write_shell_config_file(ssh_key, puppetmaster_ip, certs, puppet_conf, facter_facts)
   File.open("my-user-script.sh", 'w') do |file|
     file_contents = <<contents
 #!/bin/sh
@@ -100,6 +108,9 @@ apt-get -y install puppet
 mkdir -p /var/lib/puppet/ssl/certs
 mkdir -p /var/lib/puppet/ssl/private_keys
 mkdir -p /etc/puppet
+
+mkdir -p /etc/facter/facts.d
+echo '#{facter_facts}' >> "/etc/facter/facts.d/facts.txt"
 
 echo '#{certs[1]}' >> "/var/lib/puppet/ssl/certs/#{certs[0]}.pem"
 echo '#{certs[2]}' >> "/var/lib/puppet/ssl/certs/ca.pem"
@@ -121,6 +132,8 @@ our_ssh_key = get_our_ssh_key()
 
 certs = gen_client_ssl_cert()
 conf = generate_puppet_conf(certs[0])
-write_shell_config_file(our_ssh_key,puppetmaster_ip, certs, conf)
+
+facts = facter_facts()
+write_shell_config_file(our_ssh_key,puppetmaster_ip, certs, conf, facts)
 
 run(command)
