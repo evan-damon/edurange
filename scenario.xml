@@ -1,0 +1,57 @@
+<scenario name="Simple 2Node CtF" 
+	  last-update="20130126" 
+	  max-players="2"
+	  type="CTF">
+
+ <players>
+  <player id="player1" team="blue"/>
+  <player id="player2" team="red"/>
+ </players>
+
+ <nodes>
+  <node id="1" type="host" />
+  <node id="2" type="host" />
+ </nodes>
+
+ <assets>
+  <asset id="asset1" type="file" contents=":random()">
+    <location pathname="/etc/passwd"/>
+  </asset>
+  <asset id="asset2" type="file" contents="passwordsecretkeyidvaluemoney">
+    <location pathname="/home/player2/secret.txt"/>
+  </asset>
+ 
+ </assets>
+
+ <topology>
+   <edges>
+     <edge type="LAN" src="1" dst="2"/>
+   </edges>
+
+   <embedding-list>
+    <placement what="asset1" at="2" />
+    <placement what="asset2" at="1" />
+    <placement what="player1" at="1" />
+    <placement what="player2" at="2" />
+   </embedding-list>
+ </topology>
+
+ <goals>
+  <goal id="" entity="player1" value="100">
+   <action-sequence> 
+    <action a="read" target="asset1" />
+   </action-sequence>
+  <goal id="" entity="player2">
+   <action-sequence> 
+    <action a="read" target="asset2" value="50"/>
+   </action-sequence>
+  </goal>
+ </goals>
+
+ <security-skills>
+  <skill id ="" type="password_crack" level="1" value="100" />
+  <comments>Which fo the following numbers is closest to the number
+ 	of 4-character passwords using letters and numbers?</comments>
+ </security-skills>
+
+</scenario>
