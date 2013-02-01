@@ -7,7 +7,7 @@ Scenarios:
     type: CTF
 
     players:
-      * { id: player1, team: blue } &player1 # &player1 is an anchor, and when the file is parsed it will replace any reference *player1 with the actual value
+      * { id: player1, team: blue } &player1 # &player1 is an anchor, and when the file is parsed it will replace any referencing *player1 with the actual value
       * { id: player2, team: red } &player2
 
     assets:
