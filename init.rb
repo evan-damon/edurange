@@ -1,5 +1,6 @@
 # There's a lot of stuff to do here, step by step.
 
+require 'yaml'
 #require 'net/ssh'
 
 # Config
@@ -14,16 +15,53 @@ key_name = "newkey" # ec2 key name, not file name
 
 puppetmaster_ip = `curl http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null`
 
+
 #command = "ec2-run-instances #{ami_id} -t #{vm_size} --region us-east-1 --key #{key_name} --user-data-file combined-userdata.txt"
-command = "ec2-run-instances #{ami_id} -t #{vm_size} --region us-east-1 --key #{key_name} --user-data-file my-user-script.sh"
 #command = "ec2-run-instances #{ami_id} -t #{vm_size} --region us-east-1 --key #{key_name} -d 'wutloluhh'"
 
 # Spin up some vms
+
 
 def run(command)
   # runs an ec2 command with full path.
   command = EC2_UTILS_PATH + command
   `#{command}`
+end
+
+def get_last_instance_id
+  command = 'ec2-describe-instances | grep INSTANCE | tail -n 1'
+  vm = run(command)
+  return vm.split("\t")[1]
+end
+
+class EduMachine
+  attr_reader :uuid, :ami_id, :key_name, :vm_size, :ip_address
+
+
+  def init(key_name, vm_size="t1.micro")
+    # generate uuid
+    self.uuid = 
+    self.instance_id = nil
+    self.key_name = key_name
+    self.vm_size = vm_size
+  end
+
+  def spin_up
+    # Pref user-data-file for ourselves
+
+    # Create & run instance, setting instance_id and IP to match the newly created ami
+    command = "ec2-run-instances #{self.ami_id} -t #{self.vm_size} --region us-east-1 --key #{self.key_name} --user-data-file my-user-script.sh"
+    # run(command)
+    self.instance_id = get_last_instance_id()
+    self.update_ec2_info()
+  end
+
+  def update_ec2_info
+    command = "ec2-describe-instances | grep INSTANCE | grep '#{self.instance_id}'"
+    vm = run(command).split("\t")
+    self.ip_address = vm[17] # public ip
+    self.hostname = vm[3] # ec2 hostname
+  end
 end
 
 def get_our_ssh_key
@@ -38,15 +76,12 @@ def gen_client_ssl_cert
   # We need to:
   # Generate unique name (UUIDgen)
   uuid = `uuidgen`.chomp
-  puts uuid
   # Create cert for name on puppetmaster
   `sudo puppet cert --generate #{uuid}`
   ssl_cert = `sudo cat /var/lib/puppet/ssl/certs/#{uuid}.pem`.chomp
   ca_cert = `sudo cat /var/lib/puppet/ssl/certs/ca.pem`.chomp
   private_key = `sudo cat /var/lib/puppet/ssl/private_keys/#{uuid}.pem`.chomp
   return [uuid, ssl_cert, ca_cert, private_key]
-
-  # Ensure client has line in puppet.conf to use generated cert
 end
 
 def generate_puppet_conf(uuid)
