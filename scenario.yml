@@ -1,0 +1,48 @@
+Scenarios:
+  # Other scenarios could go here, or just remove scenarios declaration and have one scenario per file
+  Simple_2_Node_CTF:
+    # Scenario spec
+    last_update: 20130126
+    max-players: 2
+    type: CTF
+
+    players:
+      * { id: player1, team: blue } &player1 # &player1 is an anchor, and when the file is parsed it will replace any referencing *player1 with the actual value
+      * { id: player2, team: red } &player2
+
+    assets:
+      * { id: asset1, path: /etc/passwd, contents: :random() } &file1
+      * { id: asset2, path: /home/player2/secret.txt, contents: passwordsecretkeyidvaluemoney } &file2
+    
+    nodes: 
+      1: # node id 1 definition
+        type: host
+        assets:
+          players: 
+            *player1
+          files:
+            &file2
+
+      2: # node id 2 definition
+        type: host
+        assets:
+          players: 
+            *player2
+          files:
+            &file1
+
+    topology: 
+      # unlike in the xml example, topology will just be edges as yml allows us reference specific players/assets directly in nodes
+      * { type: LAN, src: 1, dst: 2 }
+
+    goals:
+      1:
+        entity: player1
+        value: 100%
+        action_sequence:
+          * { read: asset1 }
+      2:
+        entity: player2
+        value: 50%
+        action_sequence:
+          * { read: asset2 }
