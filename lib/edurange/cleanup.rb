@@ -23,6 +23,7 @@ vpc_ids.each do |vpc_id|
       if instance.elastic_ip
         puts "Disassociating Elastic IP for #{instance}"
         instance.disassociate_elastic_ip
+        ec2.elastic_ips.each { |ip| ip.delete if !ip.associated? }
       end
       instance.delete
       puts "Deleting instance #{instance}"
