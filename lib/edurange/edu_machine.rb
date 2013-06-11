@@ -1,9 +1,21 @@
 module Edurange
+  # Creates and spins up (starts) a new Amazon Machine Instance (AMI). The AMI is configured according to the specified attributes.
+  # @attribute uuid [String] Returns the UUID associated with this instance.
+  # @attribute ami_id [String] Returns the ID of the AMI.
+  # @attribute key_name [String] Returns the name of the key-value pair associated with this instance.
+  # @attribute vm_size [String] Returns the size of this instance's virtual machine (default is +t1.micro+).
+  # @attribute ip_address [String] Returns the IP address given to this instance.
+  # @attribute users [String] Returns a string containing the users associated with this instance.
   class EduMachine
     attr_reader :uuid, :ami_id, :key_name, :vm_size, :ip_address, :users
 
     EC2_UTILS_PATH = ENV['HOME'] + "/.ec2/bin/"
 
+    # Initializes the AMI by defining its attributes.
+    # @param uuid [String] the Universally Unique ID of the instance to be configured.
+    # @param key_name [String] a key name for the AMI's key-value pair.
+    # @param ami_id [String] an ID for the machine instance.
+    # @param vm_size [String] the size of the virtual machine to be used.
     def initialize(uuid, key_name, ami_id, vm_size="t1.micro")
       @uuid = uuid
       @instance_id = nil
@@ -11,9 +23,14 @@ module Edurange
       @vm_size = vm_size
       @ami_id = ami_id
     end
+
+    # Defines the initial users of this instance.
+    # @param users [String] the list of users to be used as this instance's initial users.
     def initial_users(users)
       @users = users
     end
+
+    # Runs an EC2 command using the {EduMachine::EC2_UTILS_PATH full path} of the EC2 bin file.
     def run(command)
       # runs an ec2 command with full path.
       # TODO this should be replaced, as well as places calling it, with AWS-SDK specific commands
