@@ -1,15 +1,11 @@
 module Edurange
+
+  # Parses iptables rules for required services and uses Puppet (https://puppetlabs.com) to configure the EC2 instance.
   class Parser
     
-    # Creates Puppet IPTables rules for required services
-    # TODO: "something is buggy"
-    #
-    # ==== Attributes
-    # * +uuid+ - Uses UUID of each specific instance to individually assign rules
-    # * +rules+ - A list of IPTables rules to implement on the instance specified by +uuid+
-    # 
-    # === Example
-    # * 
+    # Creates the iptables rules for Puppet to use. The rules are specific to each instance, and correspond to the services required on that instance.
+    # @param uuid [String] the Universally Unique ID of the instance to be configured.
+    # @param rules [String] the list of iptables rules to be applied to the instance (specified by uuid).
 
     def self.puppet_firewall_rules(uuid, rules)
       # This part isn't working - something is buggy. What it should do: (TODO)
@@ -32,16 +28,25 @@ module Edurange
       puppet_rules
 
     end
+
+    # Generates facts (for Puppet) based on the configuration file. Puppet uses these facts to create the configuration manifests. For more information, see: https://puppetlabs.com/blog/facter-part-1-facter-101/
+    # @param uuid [String] the Universally Unique ID of the instance to be configured.
+    # @param services [String] the services to be enabled and set up by Puppet.
     def self.facter_facts(uuid, services)
-      # Generate facts based on config. These facts are referenced in puppet configuration manifests
       services = services.join(',')
       facter_conf = <<conf
 uuid=#{uuid}
 services=#{services}
 conf
     end
+
+    # Parses the YAML input files and creates an EC2 environment according to the configuration.
+    # @param filename [String] the name of the YAML configuration file.
+    # @param keyname [String] a name for the key pair.
     def self.parse_yaml(filename, keyname)
       nodes = []
+
+      # Load the YAML configuration file
       file = YAML.load_file(filename)
 
       key_pair = AWS::EC2::KeyPairCollection.new[keyname]
