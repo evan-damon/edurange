@@ -6,14 +6,13 @@ require "edurange/instance"
 require "edurange/helper"
 
 module Edurange
+  # Initializes the setup by parsing the input YAML file and issuing relevant Puppet and EC2 commands.
   class Init
-    # ==== Attributes
+    # The initialization method for parsing and processing the YAML file.
+    # @attribute config_filename [File] The YAML file to be parsed and used for initialization.
     # 
-    # * +config_filename+ - Takes a YAML configuration file.
-    #
-    # === Example
-    #
-    #   init = Init.new(filename.yaml)
+    # @example Initialization using an example file
+    #   init = Init.new(examplefile.yml)
     def self.init(config_filename)
 
       # one-line to get name of public key from config.yml, depends on line number 

@@ -1,14 +1,14 @@
 module Edurange
+  # Assists in the creation of the EC2 environment by handling the creation of users and the configuration of the instances via shell scripts.
   class Helper
+
+    # Opens the user shell script which contains shell commands and some Puppet configuration. This is currently hardcoded as 'my-user-script.sh'.
     def self.startup_script
-      File.open('my-user-script.sh', 'rb').read
+      File.open('my-user-script.sh', 'rb').read # If this changes, change the documentation above.
     end
-    # Creates Bash lines to create user account and set password file or password given users
-    #
-    # ==== Attributes
-    #
-    # * +users+ - Takes parsed users
-    # 
+
+    # Creates bash lines to create user accounts and create the relevant password files and/or passwords
+    # @param users [String] the list of users to be added and configured via bash.
     def self.users_to_bash(users)
       puts "Got users in users to bash:"
       p users
@@ -44,8 +44,9 @@ stuff
       end
       shell
     end
+    # Prepares the {http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_NAT_Instance.html Network Address Translation (NAT) instance}, which provides the private subnet with relevant (but not unlimited) internet access.
+    # @param players [String] the list of players to be added to the NAT instance. An RSA key is generated for each player for SSH access.
     def self.prep_nat_instance(players)
-      # get nat instance ready
       data = <<data
 #!/bin/sh
 set -e
@@ -53,15 +54,20 @@ set -x
 echo "Hello World.  The time is now $(date -R)!" | tee /root/output.txt
 curl http://ccdc.boesen.me/edurange.txt > /etc/motd
 data
+
+  # For each player, generate a new RSA key, add the user (adduser), and enable the user's RSA key for SSH use
   players.each do |player|
+    # Generate an RSA key
     `rm id_rsa id_rsa.pub`
     `ssh-keygen -t rsa -f id_rsa -q -N ''`
     priv_key = File.open('id_rsa', 'rb').read
     pub_key = File.open('id_rsa.pub', 'rb').read
 
+    # Save these keys
     player["generated_pub"] = pub_key
-    player["generated_priv"] = pub_key
+    player["generated_priv"] = pub_key # Probably a mistake -- ask Stefan
 
+    # Add each user and grant them the RSA keys for SSH use
     data += <<data
 adduser -m #{player["login"]}
 mkdir -p /home/#{player["login"]}/.ssh
