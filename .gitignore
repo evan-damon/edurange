@@ -16,3 +16,4 @@ test/tmp
 test/version_tmp
 tmp
 my-user-script.sh
+*.DS_Store
